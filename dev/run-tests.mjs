@@ -179,6 +179,25 @@ function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId })
       await configure(base);
       return error?.code === 401 ? null : `kaydedilen hata ${JSON.stringify(error)}`;
     }],
+    // WordPress 7.0's AI Client, through the Anthropic connector provider, answered by the same fake Claude.
+    ['Bağlantı: site AI bağlantısıyla çalışır', async (base) => {
+      await configure(base, { api_key: '', connector_key: 'sk-ant-connector-test' });
+      const first = await chat(base, `Merhaba, sipariş: ${o.plain.number} e-posta: ayse.yilmaz@example.com`);
+      if (first.status !== 200) return `HTTP ${first.status} ${first.json?.code ?? ''}`;
+      if (!first.json.reply.includes('Processing')) return `cevap: ${first.json.reply}`;
+      const second = await chat(base, `Peki sipariş: ${o.noteTracking.number} e-posta: kargo@example.com`, first.json.conversation_id);
+      if (!second.json?.reply?.includes('7312345678901')) return `ikinci cevap: ${second.json?.reply ?? second.status}`;
+      const keys = new Set((await claudeCalls(base)).map((call) => headerOf(call, 'x-api-key')));
+      await configure(base);
+      return keys.size === 1 && keys.has('sk-ant-connector-test') ? null : `kullanılan anahtar(lar): ${[...keys].join(', ')}`;
+    }],
+    ['Bağlantı: kendi anahtarı site bağlantısından önce gelir', async (base) => {
+      await configure(base, { connector_key: 'sk-ant-connector-test' });
+      await chat(base, 'Siparişim nerede?');
+      const [call] = await claudeCalls(base);
+      await configure(base);
+      return headerOf(call, 'x-api-key') === CHAT_CONFIG.api_key ? null : `kullanılan anahtar ${headerOf(call, 'x-api-key')}`;
+    }],
     ['Deneme sınırı (tahminle deneme)', async (base) => {
       await post(base, '/osa-dev/v1/limit', { max: 3 });
       const guess = { order_number: o.plain.number, email: 'tahmin@example.com' };
@@ -190,6 +209,11 @@ function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId })
       return blocked.status === 429 ? null : `4. deneme HTTP ${blocked.status}`;
     }],
   ];
+}
+
+function headerOf(call, name) {
+  const entry = Object.entries(call?.headers ?? {}).find(([key]) => key.toLowerCase() === name);
+  return entry ? String(entry[1]) : undefined;
 }
 
 function lookup(base, body) {

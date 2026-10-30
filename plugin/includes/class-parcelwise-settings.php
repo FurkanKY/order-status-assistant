@@ -70,7 +70,7 @@ class Parcelwise_Settings {
 		if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
 			return;
 		}
-		$text = __( 'When you use the order status chat, the messages you type and the details of the order you ask about (status, items, totals, refunds, order date and tracking numbers) are sent to Anthropic to write the assistant\'s replies. Order details are only sent after you give the order number together with the email address or postcode used for the order. The conversation is kept on this site for one hour. Anthropic\'s privacy policy: https://www.anthropic.com/legal/privacy', 'parcelwise' );
+		$text = __( 'When you use the order status chat, the messages you type and the details of the order you ask about (status, items, totals, refunds, order date and tracking numbers) are sent to the AI provider this site uses, such as Anthropic, to write the assistant\'s replies. Order details are only sent after you give the order number together with the email address or postcode used for the order. The conversation is kept on this site for one hour. Anthropic\'s privacy policy: https://www.anthropic.com/legal/privacy', 'parcelwise' );
 		wp_add_privacy_policy_content( __( 'Parcelwise', 'parcelwise' ), wp_kses_post( wpautop( $text ) ) );
 	}
 
@@ -97,9 +97,13 @@ class Parcelwise_Settings {
 		$key     = trim( sanitize_text_field( $input['api_key'] ?? '' ) );
 		$model   = $input['model'] ?? '';
 
-		return array(
+		if ( '' === $key && empty( $input['remove_api_key'] ) ) {
 			// An empty field keeps the saved key, so the key never has to be printed back into the page.
-			'api_key'         => '' === $key ? $current['api_key'] : $key,
+			$key = $current['api_key'];
+		}
+
+		return array(
+			'api_key'         => $key,
 			'model'           => isset( self::MODELS[ $model ] ) ? $model : 'claude-opus-5-5',
 			'support_contact' => sanitize_text_field( $input['support_contact'] ?? '' ),
 		);
@@ -108,19 +112,27 @@ class Parcelwise_Settings {
 	public static function render() {
 		$settings   = self::get();
 		$last_error = get_option( self::ERROR_OPTION );
+		$connection = Parcelwise_Gateways::current( $settings );
+		$statuses   = array(
+			'anthropic' => __( 'Connected with the Anthropic API key saved below.', 'parcelwise' ),
+			'connector' => __( 'Connected through your site\'s AI connection (Settings > Connectors). You only need an API key below if you want Parcelwise to use its own.', 'parcelwise' ),
+			'none'      => __( 'Not connected yet. Connect an AI provider under Settings > Connectors (WordPress 7.0 or later), or save an Anthropic API key below.', 'parcelwise' ),
+		);
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Parcelwise', 'parcelwise' ); ?></h1>
+			<div class="notice <?php echo 'none' === $connection ? 'notice-warning' : 'notice-success'; ?> inline">
+				<p><?php echo esc_html( $statuses[ $connection ] ); ?></p>
+			</div>
 			<?php if ( is_array( $last_error ) ) : ?>
 				<div class="notice notice-error">
 					<p>
 						<?php
 						printf(
-							/* translators: 1: date and time, 2: HTTP status code, 3: error type such as authentication_error. */
-							esc_html__( 'On %1$s the assistant could not reach Claude (HTTP %2$d, %3$s). Check your API key and your Anthropic account balance.', 'parcelwise' ),
+							/* translators: 1: date and time, 2: what went wrong, such as "HTTP 401, authentication_error". */
+							esc_html__( 'On %1$s the assistant could not reach its AI model (%2$s). Check your API key or your site\'s AI connection, and your provider account balance.', 'parcelwise' ),
 							esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $last_error['time'] ) ),
-							(int) $last_error['code'],
-							esc_html( $last_error['detail'] )
+							esc_html( $last_error['code'] ? 'HTTP ' . $last_error['code'] . ', ' . $last_error['detail'] : $last_error['detail'] )
 						);
 						?>
 					</p>
@@ -135,7 +147,10 @@ class Parcelwise_Settings {
 						<td>
 							<input type="password" id="parcelwise-api-key" name="<?php echo esc_attr( self::OPTION ); ?>[api_key]" value="" autocomplete="off" class="regular-text"
 								placeholder="<?php echo esc_attr( $settings['api_key'] ? __( 'Saved. Leave empty to keep it.', 'parcelwise' ) : 'sk-ant-...' ); ?>">
-							<p class="description"><?php esc_html_e( 'The order details a customer asks about are sent to Anthropic to write the reply. Mention this in your privacy policy.', 'parcelwise' ); ?></p>
+							<?php if ( $settings['api_key'] ) : ?>
+								<p><label><input type="checkbox" name="<?php echo esc_attr( self::OPTION ); ?>[remove_api_key]" value="1"> <?php esc_html_e( 'Remove the saved key and use the site\'s AI connection instead', 'parcelwise' ); ?></label></p>
+							<?php endif; ?>
+							<p class="description"><?php esc_html_e( 'Optional when your site has an AI connection under Settings > Connectors. The order details a customer asks about are sent to the AI provider to write the reply; mention this in your privacy policy.', 'parcelwise' ); ?></p>
 						</td>
 					</tr>
 					<tr>
@@ -146,7 +161,7 @@ class Parcelwise_Settings {
 									<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $settings['model'], $id ); ?>><?php echo esc_html( $label ); ?></option>
 								<?php endforeach; ?>
 							</select>
-							<p class="description"><?php esc_html_e( 'Opus 5.5 gives the most reliable answers. Haiku 5.5 costs far less per message.', 'parcelwise' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Opus 5.5 gives the most reliable answers. Haiku 5.5 costs far less per message. Through the site\'s AI connection this is a preference: a connection to another provider uses that provider\'s model.', 'parcelwise' ); ?></p>
 						</td>
 					</tr>
 					<tr>

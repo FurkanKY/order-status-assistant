@@ -46,6 +46,11 @@ add_filter(
 			return $preempt;
 		}
 
+		// The site connector's Anthropic provider lists models before it sends anything.
+		if ( 0 === strpos( $url, 'https://api.anthropic.com/v1/models' ) ) {
+			return osa_dev_fake_models( $args['headers'] );
+		}
+
 		$request  = json_decode( $args['body'], true );
 		$response = osa_dev_fake_claude( $request );
 		osa_dev_log_call( $args['headers'], $request, $response, 0 );
@@ -153,6 +158,12 @@ add_action(
 						'support_contact' => 'destek@example.com',
 					)
 				);
+				// The key WordPress's Settings > Connectors screen saves for the Anthropic provider.
+				if ( $request['connector_key'] ) {
+					update_option( 'connectors_ai_anthropic_api_key', (string) $request['connector_key'] );
+				} else {
+					delete_option( 'connectors_ai_anthropic_api_key' );
+				}
 				update_option( 'osa_dev_real_claude', ! empty( $request['real_claude'] ) );
 				update_option( 'osa_dev_max_chat', $request['max_chat'] ? (int) $request['max_chat'] : 1000 );
 				update_option( 'osa_dev_max_failures', 1000 );
@@ -212,6 +223,70 @@ function osa_dev_ip() {
 }
 
 /**
+ * Message content as plain text, whether it was sent as a string (this plugin) or as text blocks
+ * (the site connector's provider). Tool results are left out.
+ */
+function osa_dev_text_of( $content ) {
+	if ( is_string( $content ) ) {
+		return $content;
+	}
+	$text = '';
+	foreach ( (array) $content as $block ) {
+		if ( 'text' === ( $block['type'] ?? '' ) ) {
+			$text .= ' ' . $block['text'];
+		}
+	}
+	return $text;
+}
+
+/**
+ * GET /v1/models, which the connector's Anthropic provider calls to see what it can use. Like the real
+ * API, it refuses a request without a key.
+ */
+function osa_dev_fake_models( array $headers ) {
+	$headers = array_change_key_case( $headers );
+	$ok      = ! empty( $headers['x-api-key'] );
+	$body    = $ok
+		? array(
+			'data'     => array(
+				array(
+					'type'         => 'model',
+					'id'           => 'claude-opus-5-5',
+					'display_name' => 'Claude Opus 5.5',
+					'created_at'   => '2026-06-01T00:00:00Z',
+				),
+				array(
+					'type'         => 'model',
+					'id'           => 'claude-haiku-5-5',
+					'display_name' => 'Claude Haiku 5.5',
+					'created_at'   => '2026-06-01T00:00:00Z',
+				),
+			),
+			'has_more' => false,
+			'first_id' => 'claude-opus-5-5',
+			'last_id'  => 'claude-haiku-5-5',
+		)
+		: array(
+			'type'  => 'error',
+			'error' => array(
+				'type'    => 'authentication_error',
+				'message' => 'x-api-key header is required',
+			),
+		);
+
+	return array(
+		'headers'  => array( 'content-type' => 'application/json' ),
+		'body'     => wp_json_encode( $body ),
+		'response' => array(
+			'code'    => $ok ? 200 : 401,
+			'message' => $ok ? 'OK' : 'Unauthorized',
+		),
+		'cookies'  => array(),
+		'filename' => null,
+	);
+}
+
+/**
  * Plays Claude's part: asks for missing details, calls lookup_order once it has an order number
  * and an email, then turns the tool result into a sentence. Every reply carries a thinking block,
  * like the real model, so tests can check those are sent back untouched.
@@ -246,8 +321,15 @@ function osa_dev_fake_claude( array $request ) {
 		'signature' => 'dev-signature',
 	);
 
-	if ( is_array( $last['content'] ) && 'tool_result' === ( $last['content'][0]['type'] ?? '' ) ) {
-		$result = json_decode( $last['content'][0]['content'], true );
+	$tool_result = null;
+	foreach ( is_array( $last['content'] ) ? $last['content'] : array() as $block ) {
+		if ( 'tool_result' === ( $block['type'] ?? '' ) ) {
+			$tool_result = $block;
+		}
+	}
+
+	if ( $tool_result ) {
+		$result = json_decode( is_string( $tool_result['content'] ) ? $tool_result['content'] : osa_dev_text_of( $tool_result['content'] ), true );
 		if ( empty( $result['found'] ) ) {
 			return $respond( array( $thinking, $text( 'Bu bilgilerle eşleşen bir sipariş bulamadım, bilgileri kontrol eder misiniz?' ) ), 'end_turn' );
 		}
@@ -256,7 +338,7 @@ function osa_dev_fake_claude( array $request ) {
 		return $respond( array( $thinking, $text( sprintf( '%s numaralı siparişinizin durumu: %s.%s', $order['order_number'], $order['status_label'], $tracking ) ) ), 'end_turn' );
 	}
 
-	if ( is_string( $last['content'] ) && false !== strpos( $last['content'], 'REFUSE_TEST' ) ) {
+	if ( false !== strpos( osa_dev_text_of( $last['content'] ), 'REFUSE_TEST' ) ) {
 		$refusal                 = $respond( array(), 'refusal' );
 		$refusal['stop_details'] = array(
 			'type'     => 'refusal',
@@ -267,8 +349,8 @@ function osa_dev_fake_claude( array $request ) {
 
 	$said = '';
 	foreach ( $messages as $message ) {
-		if ( 'user' === $message['role'] && is_string( $message['content'] ) ) {
-			$said .= ' ' . $message['content'];
+		if ( 'user' === $message['role'] ) {
+			$said .= ' ' . osa_dev_text_of( $message['content'] );
 		}
 	}
 	// Order numbers written as "sipariş: 11", "#11" or "11 numaralı / 11 nolu".

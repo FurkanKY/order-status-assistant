@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Parcelwise
  * Description:       Verified order status chat for WooCommerce. Customers ask where their order is and get its status and tracking number, and never see anyone else's order.
- * Version:           0.2.0
+ * Version:           0.3.0
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
@@ -15,11 +15,14 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'PARCELWISE_PLUGIN_FILE', __FILE__ );
-define( 'PARCELWISE_VERSION', '0.2.0' );
+define( 'PARCELWISE_VERSION', '0.3.0' );
 
 require_once __DIR__ . '/includes/class-parcelwise-throttle.php';
 require_once __DIR__ . '/includes/class-parcelwise-tracking.php';
 require_once __DIR__ . '/includes/class-parcelwise-order-lookup.php';
+require_once __DIR__ . '/includes/class-parcelwise-gateway.php';
+require_once __DIR__ . '/includes/class-parcelwise-anthropic-gateway.php';
+require_once __DIR__ . '/includes/class-parcelwise-connector-gateway.php';
 require_once __DIR__ . '/includes/class-parcelwise-chat.php';
 require_once __DIR__ . '/includes/class-parcelwise-settings.php';
 require_once __DIR__ . '/includes/class-parcelwise-widget.php';

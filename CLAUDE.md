@@ -14,7 +14,7 @@ WooCommerce mağazalarında "Siparişim nerede?" sorusunu sohbetle cevaplayan, m
 ## Proje haritası
 
 - `plugin/`: Dağıtılan eklenti. Siparişi bulma ve sahiplik kontrolü `includes/class-parcelwise-order-lookup.php` dosyasında, Claude ile sohbet döngüsü `includes/class-parcelwise-chat.php` dosyasında, REST uçları `includes/class-parcelwise-rest-controller.php` dosyasında.
-- `dev/`: Test düzeneği. WordPress Playground mağazaları, test siparişleri, sahte Claude (`dev/osa-dev/osa-dev.php`). `npm test` ile 28 senaryo HPOS ve klasik depolamada çalışır.
+- `dev/`: Test düzeneği. WordPress Playground mağazaları, test siparişleri, sahte Claude (`dev/osa-dev/osa-dev.php`). `npm test` ile 30 senaryo HPOS ve klasik depolamada çalışır.
 - `eval/`: Gerçek Claude ile ölçüm. `eval/run-eval.mjs`, vakalar `eval/cases.json`, notlama `eval/grading.mjs` (kod kontrolleri ve Sonnet 5.5 notlayıcı). Sonuçlar `.claude/hillclimb/` altında; 1. tur `order-chat-r1/`.
 - `dist/`: Dizine gönderilecek zip.
 

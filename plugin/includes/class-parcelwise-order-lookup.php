@@ -84,7 +84,7 @@ class Parcelwise_Order_Lookup {
 	 */
 	private function candidates( $typed, $number, $email ) {
 		// Custom order number plugins map their displayed number back to an ID on this filter.
-		$guesses = array( apply_filters( 'woocommerce_shortcode_order_tracking_order_id', $typed ) );
+		$guesses = array( apply_filters( 'woocommerce_shortcode_order_tracking_order_id', $typed ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WooCommerce's own filter, applied on purpose.
 
 		if ( preg_match_all( '/\d+/', $number, $digits ) ) {
 			$guesses = array_merge( $guesses, array_slice( $digits[0], 0, self::MAX_ID_GUESSES ) );

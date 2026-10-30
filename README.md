@@ -36,14 +36,17 @@ Plugin on the WordPress server
 4. **Costs and abuse are capped.** Failed lookups are limited per visitor and shared between the REST endpoint and the chat tool, so the chat can't be used to guess around the limit. Messages per visitor and tool rounds per message are capped, and replies run at low effort.
 5. **Conversations are append-only and live on the server.** The browser only holds a conversation ID, so it can't rewrite history, and Claude's thinking blocks stay valid when they are sent back. A refused or cut-off turn is dropped instead of saved, so one refusal can't poison the rest of the conversation.
 6. **Models are chosen by measurement.** Opus 5.5 is the default; Haiku 5.5 is an option, and the eval below shows what it costs and saves.
+7. **No API key required.** On WordPress 7.0+, Parcelwise talks to the model through the site's own AI connection (the core AI Client, configured under Settings > Connectors), so a store that already connected Anthropic, OpenAI or Google needs nothing else. A store can still save its own Anthropic key, which wins when present and unlocks what the generic client can't express: strict tool schemas, the server-side refusal fallback, prompt caching and low effort. The chat loop is backend-neutral: each gateway keeps history in its own format and the loop only appends what it is handed, so Claude's thinking blocks survive the direct path and the AI Client's message arrays survive the connector path.
 
 ## Evidence
 
 ### Plugin tests
 
-`npm test` starts two fresh WooCommerce stores in [WordPress Playground](https://wordpress.github.io/wordpress-playground/), one on HPOS and one on classic order storage, seeds orders for each tricky case, and runs 28 scenarios against each. Chat tests use a scripted fake Claude, so they run offline and for free.
+`npm test` starts two fresh WooCommerce stores in [WordPress Playground](https://wordpress.github.io/wordpress-playground/), one on HPOS and one on classic order storage, seeds orders for each tricky case, and runs 30 scenarios against each. Chat tests use a scripted fake Claude, so they run offline and for free.
 
-Every scenario passes on both: custom and sequential numbers, refunds, tracking in notes and in plugin meta, wrong-email lookups, refund IDs used as order numbers, the API key never reaching the page, rate limits, a refused model turn, and an invalid API key surfacing on the settings page.
+Every scenario passes on both: custom and sequential numbers, refunds, tracking in notes and in plugin meta, wrong-email lookups, refund IDs used as order numbers, the API key never reaching the page, rate limits, a refused model turn, an invalid API key surfacing on the settings page, the chat working through the site's AI connection with no key saved, and a saved key taking priority over it.
+
+The site AI connection path has also been run once against real Claude (Opus 5.5 through the Anthropic connector): it asked for the missing details, looked the order up, and gave the status and tracking number in three API calls.
 
 ### Evaluation with real Claude
 
@@ -62,7 +65,7 @@ Total spend for the eval, including the pilot: $1.49.
 
 ### WordPress Plugin Check
 
-The official [Plugin Check](https://wordpress.org/plugins/plugin-check/) static checks report no errors. One warning remains: it suggests the WordPress 7.0 AI Client instead of calling Anthropic directly, which is under consideration (see below). The runtime checks couldn't run inside Playground.
+The official [Plugin Check](https://wordpress.org/plugins/plugin-check/) static checks report no errors. They raised two warnings, both kept on purpose and marked inline with the reason: the lookup applies WooCommerce's own order-number filter, and the optional direct Anthropic path calls the API itself (the WordPress AI Client is used whenever no key is saved). The runtime checks couldn't run inside Playground.
 
 ## Known limitations
 
@@ -73,7 +76,7 @@ The official [Plugin Check](https://wordpress.org/plugins/plugin-check/) static 
 
 ## Roadmap
 
-- **Support the WordPress AI Client.** Store owners could then use whichever AI provider their site already has, instead of getting an Anthropic key. This depends on the client supporting tool use.
+- **Measure the connector path with real models.** The eval above covers the direct Anthropic path; the AI Client path has one real run with Anthropic, and providers other than Anthropic haven't been tried at all.
 - **A store-owner panel** showing how many questions were answered without reaching support, and why the rest were handed off.
 - **An option to require email verification.**
 

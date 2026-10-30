@@ -7,6 +7,11 @@
 			"pluginData": { "resource": "wordpress.org/plugins", "slug": "woocommerce" },
 			"options": { "activate": true }
 		},
+		{
+			"step": "installPlugin",
+			"pluginData": { "resource": "wordpress.org/plugins", "slug": "ai-provider-for-anthropic" },
+			"options": { "activate": true }
+		},
 		{ "step": "activatePlugin", "pluginPath": "parcelwise/parcelwise.php" },
 		{ "step": "activatePlugin", "pluginPath": "osa-dev/osa-dev.php" }
 	]
