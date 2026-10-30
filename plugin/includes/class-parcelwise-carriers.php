@@ -78,6 +78,14 @@ class Parcelwise_Carriers {
 			'ids'      => array( 'kolaygelsin', 'sendeo' ),
 			'mentions' => array( 'kolay gelsin', 'kolaygelsin', 'sendeo' ),
 		),
+
+		'suratkargo'	=> array(
+			'name'		=> 'Sürat Kargo',
+			'url'		=> 'https://www.suratkargo.com.tr/KargoTakip/?kargotakipno={number}',
+			'site'		=> 'https://www.suratkargo.com.tr/',
+			'ids'		=> array( 'surat' ),
+			'mentions'  => array( 'surat'),
+		),
 	);
 
 	public static function all() {

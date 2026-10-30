@@ -6,10 +6,12 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PLAYGROUND_CLI = '@wp-playground/cli@3.1.61';
+// --only=hpos or --only=legacy runs one store, for a quicker check.
+const only = process.argv.find((a) => a.startsWith('--only='))?.slice('--only='.length);
 const MODES = [
   { key: 'hpos', label: 'HPOS', port: 9401 },
   { key: 'legacy', label: 'Klasik', port: 9402 },
-];
+].filter((m) => !only || m.key === only);
 // A fake key: chat tests never reach Anthropic, the dev plugin answers in Claude's place.
 const CHAT_CONFIG = { api_key: 'sk-ant-dev-test-key-0000', model: 'claude-opus-5-5' };
 
@@ -95,6 +97,8 @@ function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId })
       link('PTT Kargo', 'https://www.ptt.gov.tr/', 'carrier_site'))],
     ['"arasında" Aras sanılmaz', expectOrder({ order_number: o.plain2.number, email: 'ayse.yilmaz@example.com' }, o.plain2,
       link('', '', ''))],
+    ['Sürat: not içinde "Sürat ile"', expectOrder({ order_number: o.suratNote.number, email: 'surat@example.com' }, o.suratNote,
+      link('Sürat Kargo', 'https://www.suratkargo.com.tr/KargoTakip/?kargotakipno=9001234567', 'tracking'))],
     ['Takip no kargo eklentisinde', expectOrder({ order_number: o.metaTracking.number, email: 'takip@example.com' }, o.metaTracking,
       tracking(['1Z999AA10123456784']))],
     ['Yanlış e-posta bilgi vermez', expectStatus({ order_number: o.plain.number, email: 'baskasi@example.com' }, 404)],

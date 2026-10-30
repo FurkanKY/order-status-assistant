@@ -557,6 +557,16 @@ function osa_dev_seed() {
 		'completed'
 	);
 	$ptt_note->add_order_note( 'PTT Kargo takip no: RR123456789TR' );
+	
+
+	$surat_note = $make(
+		array(
+			'email'    => 'surat@example.com',
+			'postcode' => '06000',
+		),
+		'completed'
+	);
+	$surat_note->add_order_note( 'Sürat ile gönderildi, takip no: 9001234567' );
 
 	$chat_page_id = wp_insert_post(
 		array(
@@ -586,6 +596,7 @@ function osa_dev_seed() {
 				'kargoTakip'   => $kargo_takip,
 				'hezarfen'     => $hezarfen,
 				'pttNote'      => $ptt_note,
+				'suratNote'	   => $surat_note,
 			)
 		),
 	);
