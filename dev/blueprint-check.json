@@ -1,0 +1,22 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"preferredVersions": { "php": "8.3", "wp": "latest" },
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": { "resource": "wordpress.org/plugins", "slug": "woocommerce" },
+			"options": { "activate": true }
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": { "resource": "wordpress.org/plugins", "slug": "plugin-check" },
+			"options": { "activate": true }
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php // Playground's file system can't take exclusive locks, which PHP_CodeSniffer asks for when writing its report; drop the lock so the code checks can run.\n$f = '/wordpress/wp-content/plugins/plugin-check/vendor/squizlabs/php_codesniffer/src/Reporter.php';\nfile_put_contents( $f, str_replace( 'LOCK_EX', '0', file_get_contents( $f ) ) );"
+		},
+		{ "step": "activatePlugin", "pluginPath": "order-status-assistant/order-status-assistant.php" },
+		{ "step": "activatePlugin", "pluginPath": "osa-dev/osa-dev.php" }
+	]
+}

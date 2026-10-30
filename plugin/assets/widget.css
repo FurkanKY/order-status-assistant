@@ -1,0 +1,59 @@
+.osa-chat {
+  --osa-accent: #2271b1;
+  --osa-border: #dcdcde;
+  display: flex;
+  flex-direction: column;
+  max-width: 420px;
+  border: 1px solid var(--osa-border);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+
+.osa-chat__log {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 320px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.osa-chat__msg {
+  max-width: 85%;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.osa-chat__msg--assistant {
+  align-self: flex-start;
+  background: #f0f0f1;
+  color: #1d2327;
+}
+
+.osa-chat__msg--customer {
+  align-self: flex-end;
+  background: var(--osa-accent);
+  color: #fff;
+}
+
+.osa-chat--busy .osa-chat__log::after {
+  content: "…";
+  align-self: flex-start;
+  padding: 0 12px;
+}
+
+.osa-chat__form {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid var(--osa-border);
+}
+
+.osa-chat__input {
+  flex: 1;
+  min-width: 0;
+}

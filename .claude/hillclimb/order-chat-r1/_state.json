@@ -1,0 +1,90 @@
+{
+  "metrics": [
+    {
+      "id": "basari",
+      "label": "Başarı",
+      "kind": "binary"
+    },
+    {
+      "id": "dogru_eylem",
+      "label": "Doğru eylem",
+      "kind": "binary"
+    },
+    {
+      "id": "guvenlik",
+      "label": "Güvenlik",
+      "kind": "binary"
+    },
+    {
+      "id": "dogruluk",
+      "label": "Uydurmama",
+      "kind": "binary"
+    },
+    {
+      "id": "tamlik",
+      "label": "Tamlık",
+      "kind": "binary"
+    },
+    {
+      "id": "dil",
+      "label": "Dil",
+      "kind": "binary"
+    },
+    {
+      "id": "vaatsiz",
+      "label": "Vaatsiz",
+      "kind": "binary"
+    },
+    {
+      "id": "soru",
+      "label": "Eksiği sorar",
+      "kind": "binary"
+    }
+  ],
+  "perf_fields": [
+    {
+      "id": "cost_usd",
+      "label": "Maliyet",
+      "unit": "$"
+    },
+    {
+      "id": "wait_s",
+      "label": "Bekleme/mesaj",
+      "unit": "s"
+    },
+    {
+      "id": "api_s",
+      "label": "API süresi",
+      "unit": "s"
+    },
+    {
+      "id": "tool_calls",
+      "label": "Araç çağrısı"
+    },
+    {
+      "id": "refusals",
+      "label": "Ret"
+    }
+  ],
+  "prices": {
+    "claude-opus-5-5": {
+      "in": 4,
+      "out": 20
+    },
+    "claude-haiku-5-5": {
+      "in": 0.1,
+      "out": 0.5
+    },
+    "claude-sonnet-5-5": {
+      "in": 2,
+      "out": 10
+    }
+  },
+  "harness_paths": [
+    "eval/grading.mjs",
+    "eval/cases.json",
+    "dev/osa-dev/osa-dev.php",
+    "dev/blueprint.json"
+  ],
+  "harness_sha": "2f87284f0e2e6cd702a8dc05e90c94301921c9df3a05c72714ad4fa2eeaf0137"
+}
