@@ -1,4 +1,4 @@
-=== Order Status Assistant for WooCommerce ===
+=== Parcelwise ===
 Contributors: furkankadiryilmaz
 Tags: woocommerce, order tracking, order status, chatbot, ai
 Requires at least: 6.5
@@ -8,11 +8,13 @@ Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Customers check their order status and tracking number by chatting, and never see anyone else's order.
+Verified order status chat for WooCommerce: customers ask where their order is, and never see anyone else's.
 
 == Description ==
 
-"Where is my order?" is the question stores get most. Order Status Assistant answers it in a chat box on any page.
+"Where is my order?" is the question stores get most. Parcelwise answers it in a chat box on any page, and does only that.
+
+A general-purpose AI chatbot answers from whatever data it is handed. Parcelwise hands the AI an order only after the customer has shown it is theirs, so no wording or trick in a message can get one customer another customer's order.
 
 * The customer gives their order number and the email address or postcode they used, in their own words and language.
 * The assistant looks the order up and replies with its status, items, refunds and tracking numbers.
@@ -36,12 +38,12 @@ And it is built to be safe:
 == Installation ==
 
 1. Install and activate the plugin. WooCommerce must be active.
-2. Go to WooCommerce > Order Status Assistant, paste your Anthropic API key and enter your support contact.
-3. Add the `[order_status_assistant]` shortcode to a page, for example "Track your order".
+2. Go to WooCommerce > Parcelwise, paste your Anthropic API key and enter your support contact.
+3. Add the `[parcelwise]` shortcode to a page, for example "Track your order".
 
 == External services ==
 
-This plugin uses the Anthropic API (Claude) to understand customer messages and write the replies. It only connects to Anthropic after a store administrator saves an Anthropic API key under WooCommerce > Order Status Assistant.
+This plugin uses the Anthropic API (Claude) to understand customer messages and write the replies. It only connects to Anthropic after a store administrator saves an Anthropic API key under WooCommerce > Parcelwise.
 
 Each time a customer sends a message in the chat box, the plugin sends Anthropic:
 
@@ -69,7 +71,7 @@ No. An order is only returned when its number and the email or postcode both mat
 
 = Can I use it without the chat? =
 
-Yes. `POST /wp-json/order-status-assistant/v1/lookup` with `order_number` and `email` or `postcode` returns the same order details as JSON.
+Yes. `POST /wp-json/parcelwise/v1/lookup` with `order_number` and `email` or `postcode` returns the same order details as JSON.
 
 = How long are conversations kept? =
 
@@ -82,7 +84,7 @@ All of it is in this plugin, unminified. The development repository, with the te
 == Changelog ==
 
 = 0.2.0 =
-* Chat assistant powered by Claude, with a settings page and the `[order_status_assistant]` shortcode.
+* Chat assistant powered by Claude, with a settings page and the `[parcelwise]` shortcode.
 
 = 0.1.0 =
 * Order lookup by order number plus email or postcode, with tracking numbers and refunds.

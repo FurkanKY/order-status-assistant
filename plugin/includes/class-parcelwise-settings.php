@@ -2,7 +2,7 @@
 /**
  * Settings page under WooCommerce.
  *
- * @package OrderStatusAssistant
+ * @package Parcelwise
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,12 +10,12 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Stores the API key, the model and where to send customers for anything beyond order status.
  */
-class OSA_Settings {
+class Parcelwise_Settings {
 
-	const OPTION = 'osa_settings';
+	const OPTION = 'parcelwise_settings';
 
 	/** The most recent failed Claude API call, shown on the settings page. */
-	const ERROR_OPTION = 'osa_last_error';
+	const ERROR_OPTION = 'parcelwise_last_error';
 
 	const MODELS = array(
 		'claude-opus-5-5'   => 'Claude Opus 5.5',
@@ -51,10 +51,10 @@ class OSA_Settings {
 	public static function add_page() {
 		add_submenu_page(
 			'woocommerce',
-			__( 'Order Status Assistant', 'order-status-assistant' ),
-			__( 'Order Status Assistant', 'order-status-assistant' ),
+			__( 'Parcelwise', 'parcelwise' ),
+			__( 'Parcelwise', 'parcelwise' ),
 			'manage_woocommerce',
-			'order-status-assistant',
+			'parcelwise',
 			array( __CLASS__, 'render' )
 		);
 	}
@@ -70,8 +70,8 @@ class OSA_Settings {
 		if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
 			return;
 		}
-		$text = __( 'When you use the order status chat, the messages you type and the details of the order you ask about (status, items, totals, refunds, order date and tracking numbers) are sent to Anthropic to write the assistant\'s replies. Order details are only sent after you give the order number together with the email address or postcode used for the order. The conversation is kept on this site for one hour. Anthropic\'s privacy policy: https://www.anthropic.com/legal/privacy', 'order-status-assistant' );
-		wp_add_privacy_policy_content( __( 'Order Status Assistant', 'order-status-assistant' ), wp_kses_post( wpautop( $text ) ) );
+		$text = __( 'When you use the order status chat, the messages you type and the details of the order you ask about (status, items, totals, refunds, order date and tracking numbers) are sent to Anthropic to write the assistant\'s replies. Order details are only sent after you give the order number together with the email address or postcode used for the order. The conversation is kept on this site for one hour. Anthropic\'s privacy policy: https://www.anthropic.com/legal/privacy', 'parcelwise' );
+		wp_add_privacy_policy_content( __( 'Parcelwise', 'parcelwise' ), wp_kses_post( wpautop( $text ) ) );
 	}
 
 	/**
@@ -110,14 +110,14 @@ class OSA_Settings {
 		$last_error = get_option( self::ERROR_OPTION );
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Order Status Assistant', 'order-status-assistant' ); ?></h1>
+			<h1><?php esc_html_e( 'Parcelwise', 'parcelwise' ); ?></h1>
 			<?php if ( is_array( $last_error ) ) : ?>
 				<div class="notice notice-error">
 					<p>
 						<?php
 						printf(
 							/* translators: 1: date and time, 2: HTTP status code, 3: error type such as authentication_error. */
-							esc_html__( 'On %1$s the assistant could not reach Claude (HTTP %2$d, %3$s). Check your API key and your Anthropic account balance.', 'order-status-assistant' ),
+							esc_html__( 'On %1$s the assistant could not reach Claude (HTTP %2$d, %3$s). Check your API key and your Anthropic account balance.', 'parcelwise' ),
 							esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $last_error['time'] ) ),
 							(int) $last_error['code'],
 							esc_html( $last_error['detail'] )
@@ -126,34 +126,34 @@ class OSA_Settings {
 					</p>
 				</div>
 			<?php endif; ?>
-			<p><?php esc_html_e( 'Add the assistant to any page with the [order_status_assistant] shortcode.', 'order-status-assistant' ); ?></p>
+			<p><?php esc_html_e( 'Add the assistant to any page with the [parcelwise] shortcode.', 'parcelwise' ); ?></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( self::OPTION ); ?>
 				<table class="form-table" role="presentation">
 					<tr>
-						<th scope="row"><label for="osa-api-key"><?php esc_html_e( 'Anthropic API key', 'order-status-assistant' ); ?></label></th>
+						<th scope="row"><label for="parcelwise-api-key"><?php esc_html_e( 'Anthropic API key', 'parcelwise' ); ?></label></th>
 						<td>
-							<input type="password" id="osa-api-key" name="<?php echo esc_attr( self::OPTION ); ?>[api_key]" value="" autocomplete="off" class="regular-text"
-								placeholder="<?php echo esc_attr( $settings['api_key'] ? __( 'Saved. Leave empty to keep it.', 'order-status-assistant' ) : 'sk-ant-...' ); ?>">
-							<p class="description"><?php esc_html_e( 'The order details a customer asks about are sent to Anthropic to write the reply. Mention this in your privacy policy.', 'order-status-assistant' ); ?></p>
+							<input type="password" id="parcelwise-api-key" name="<?php echo esc_attr( self::OPTION ); ?>[api_key]" value="" autocomplete="off" class="regular-text"
+								placeholder="<?php echo esc_attr( $settings['api_key'] ? __( 'Saved. Leave empty to keep it.', 'parcelwise' ) : 'sk-ant-...' ); ?>">
+							<p class="description"><?php esc_html_e( 'The order details a customer asks about are sent to Anthropic to write the reply. Mention this in your privacy policy.', 'parcelwise' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="osa-model"><?php esc_html_e( 'Model', 'order-status-assistant' ); ?></label></th>
+						<th scope="row"><label for="parcelwise-model"><?php esc_html_e( 'Model', 'parcelwise' ); ?></label></th>
 						<td>
-							<select id="osa-model" name="<?php echo esc_attr( self::OPTION ); ?>[model]">
+							<select id="parcelwise-model" name="<?php echo esc_attr( self::OPTION ); ?>[model]">
 								<?php foreach ( self::MODELS as $id => $label ) : ?>
 									<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $settings['model'], $id ); ?>><?php echo esc_html( $label ); ?></option>
 								<?php endforeach; ?>
 							</select>
-							<p class="description"><?php esc_html_e( 'Opus 5.5 gives the most reliable answers. Haiku 5.5 costs far less per message.', 'order-status-assistant' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Opus 5.5 gives the most reliable answers. Haiku 5.5 costs far less per message.', 'parcelwise' ); ?></p>
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><label for="osa-support"><?php esc_html_e( 'Support contact', 'order-status-assistant' ); ?></label></th>
+						<th scope="row"><label for="parcelwise-support"><?php esc_html_e( 'Support contact', 'parcelwise' ); ?></label></th>
 						<td>
-							<input type="text" id="osa-support" name="<?php echo esc_attr( self::OPTION ); ?>[support_contact]" value="<?php echo esc_attr( $settings['support_contact'] ); ?>" class="regular-text">
-							<p class="description"><?php esc_html_e( 'Where the assistant sends customers for anything beyond order status, such as support@yourstore.com.', 'order-status-assistant' ); ?></p>
+							<input type="text" id="parcelwise-support" name="<?php echo esc_attr( self::OPTION ); ?>[support_contact]" value="<?php echo esc_attr( $settings['support_contact'] ); ?>" class="regular-text">
+							<p class="description"><?php esc_html_e( 'Where the assistant sends customers for anything beyond order status, such as support@yourstore.com.', 'parcelwise' ); ?></p>
 						</td>
 					</tr>
 				</table>

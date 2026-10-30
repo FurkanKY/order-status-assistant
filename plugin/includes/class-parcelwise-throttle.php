@@ -2,7 +2,7 @@
 /**
  * Per-visitor attempt counter.
  *
- * @package OrderStatusAssistant
+ * @package Parcelwise
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Counts attempts per IP address inside a time window.
  */
-class OSA_Throttle {
+class Parcelwise_Throttle {
 
 	/** @var string */
 	private $prefix;
@@ -31,14 +31,14 @@ class OSA_Throttle {
 	 * Failed order lookups, shared by the lookup endpoint and the chat tool so neither can be used to guess orders.
 	 */
 	public static function failed_lookups() {
-		return new self( 'osa_failures_', apply_filters( 'osa_max_failed_lookups', 10 ), 10 * MINUTE_IN_SECONDS );
+		return new self( 'parcelwise_failures_', apply_filters( 'parcelwise_max_failed_lookups', 10 ), 10 * MINUTE_IN_SECONDS );
 	}
 
 	/**
 	 * Chat messages. Each one costs the store an API call.
 	 */
 	public static function chat_messages() {
-		return new self( 'osa_chat_', apply_filters( 'osa_max_chat_messages', 30 ), HOUR_IN_SECONDS );
+		return new self( 'parcelwise_chat_', apply_filters( 'parcelwise_max_chat_messages', 30 ), HOUR_IN_SECONDS );
 	}
 
 	public function allowed() {

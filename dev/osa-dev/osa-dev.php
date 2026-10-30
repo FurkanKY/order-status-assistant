@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Order Status Assistant - Dev Fixtures
+ * Plugin Name: Parcelwise - Dev Fixtures
  * Description: Test-only helpers for the local Playground store. Never install on a real store.
  *
- * @package OrderStatusAssistant
+ * @package Parcelwise
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -21,13 +21,13 @@ add_filter(
 
 // High by default so expected failures in the test run don't trip the limiters; their own tests lower them.
 add_filter(
-	'osa_max_failed_lookups',
+	'parcelwise_max_failed_lookups',
 	function () {
 		return (int) get_option( 'osa_dev_max_failures', 1000 );
 	}
 );
 add_filter(
-	'osa_max_chat_messages',
+	'parcelwise_max_chat_messages',
 	function () {
 		return (int) get_option( 'osa_dev_max_chat', 1000 );
 	}
@@ -136,7 +136,7 @@ add_action(
 			'/limit',
 			function ( WP_REST_Request $request ) {
 				update_option( 'osa_dev_max_failures', (int) $request['max'] );
-				delete_transient( 'osa_failures_' . md5( osa_dev_ip() ) );
+				delete_transient( 'parcelwise_failures_' . md5( osa_dev_ip() ) );
 				return array( 'max' => (int) $request['max'] );
 			}
 		);
@@ -146,7 +146,7 @@ add_action(
 			'/config',
 			function ( WP_REST_Request $request ) {
 				update_option(
-					'osa_settings',
+					'parcelwise_settings',
 					array(
 						'api_key'         => (string) $request['api_key'],
 						'model'           => $request['model'] ? (string) $request['model'] : 'claude-opus-5-5',
@@ -156,10 +156,10 @@ add_action(
 				update_option( 'osa_dev_real_claude', ! empty( $request['real_claude'] ) );
 				update_option( 'osa_dev_max_chat', $request['max_chat'] ? (int) $request['max_chat'] : 1000 );
 				update_option( 'osa_dev_max_failures', 1000 );
-				delete_transient( 'osa_chat_' . md5( osa_dev_ip() ) );
-				delete_transient( 'osa_failures_' . md5( osa_dev_ip() ) );
+				delete_transient( 'parcelwise_chat_' . md5( osa_dev_ip() ) );
+				delete_transient( 'parcelwise_failures_' . md5( osa_dev_ip() ) );
 				delete_option( 'osa_dev_claude_log' );
-				delete_option( 'osa_last_error' );
+				delete_option( 'parcelwise_last_error' );
 				return array( 'ok' => true );
 			}
 		);
@@ -167,7 +167,7 @@ add_action(
 		$route(
 			'/last-error',
 			function () {
-				return get_option( 'osa_last_error', null );
+				return get_option( 'parcelwise_last_error', null );
 			}
 		);
 
@@ -447,7 +447,7 @@ function osa_dev_seed() {
 			'post_type'    => 'page',
 			'post_status'  => 'publish',
 			'post_title'   => 'Sipariş Asistanı',
-			'post_content' => '[order_status_assistant]',
+			'post_content' => '[parcelwise]',
 		)
 	);
 
@@ -481,6 +481,6 @@ function osa_dev_fixture( WC_Order $order ) {
 		'status'   => $order->get_status(),
 		'total'    => (float) $order->get_total(),
 		'email'    => $order->get_billing_email(),
-		'tracking' => array_column( OSA_Tracking::from_order( $order ), 'number' ),
+		'tracking' => array_column( Parcelwise_Tracking::from_order( $order ), 'number' ),
 	);
 }

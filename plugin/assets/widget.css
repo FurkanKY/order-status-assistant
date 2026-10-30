@@ -1,16 +1,16 @@
-.osa-chat {
-  --osa-accent: #2271b1;
-  --osa-border: #dcdcde;
+.parcelwise-chat {
+  --parcelwise-accent: #2271b1;
+  --parcelwise-border: #dcdcde;
   display: flex;
   flex-direction: column;
   max-width: 420px;
-  border: 1px solid var(--osa-border);
+  border: 1px solid var(--parcelwise-border);
   border-radius: 8px;
   background: #fff;
   font: inherit;
 }
 
-.osa-chat__log {
+.parcelwise-chat__log {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -19,7 +19,7 @@
   overflow-y: auto;
 }
 
-.osa-chat__msg {
+.parcelwise-chat__msg {
   max-width: 85%;
   margin: 0;
   padding: 8px 12px;
@@ -28,32 +28,32 @@
   white-space: pre-wrap;
 }
 
-.osa-chat__msg--assistant {
+.parcelwise-chat__msg--assistant {
   align-self: flex-start;
   background: #f0f0f1;
   color: #1d2327;
 }
 
-.osa-chat__msg--customer {
+.parcelwise-chat__msg--customer {
   align-self: flex-end;
-  background: var(--osa-accent);
+  background: var(--parcelwise-accent);
   color: #fff;
 }
 
-.osa-chat--busy .osa-chat__log::after {
+.parcelwise-chat--busy .parcelwise-chat__log::after {
   content: "…";
   align-self: flex-start;
   padding: 0 12px;
 }
 
-.osa-chat__form {
+.parcelwise-chat__form {
   display: flex;
   gap: 8px;
   padding: 8px;
-  border-top: 1px solid var(--osa-border);
+  border-top: 1px solid var(--parcelwise-border);
 }
 
-.osa-chat__input {
+.parcelwise-chat__input {
   flex: 1;
   min-width: 0;
 }

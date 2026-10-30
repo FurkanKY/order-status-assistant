@@ -2,7 +2,7 @@
 /**
  * Order lookup and ownership check.
  *
- * @package OrderStatusAssistant
+ * @package Parcelwise
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  * Everything goes through the WooCommerce order API, so lookups behave the same
  * on HPOS and on classic post storage.
  */
-class OSA_Order_Lookup {
+class Parcelwise_Order_Lookup {
 
 	/** Most recent orders scanned per email when the number can't be resolved directly. */
 	const MAX_ORDERS_PER_EMAIL = 50;
@@ -72,7 +72,7 @@ class OSA_Order_Lookup {
 			'refunded_total' => (float) $order->get_total_refunded(),
 			'currency'       => $order->get_currency(),
 			'items'          => $items,
-			'tracking'       => OSA_Tracking::from_order( $order ),
+			'tracking'       => Parcelwise_Tracking::from_order( $order ),
 		);
 	}
 

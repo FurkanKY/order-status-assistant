@@ -2,7 +2,7 @@
 /**
  * Tracking number extraction.
  *
- * @package OrderStatusAssistant
+ * @package Parcelwise
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Collects tracking numbers from wherever stores keep them: a shipment
  * tracking plugin, or a note typed by hand.
  */
-class OSA_Tracking {
+class Parcelwise_Tracking {
 
 	/**
 	 * A tracking keyword, an optional "no/number/kodu", then a token containing at

@@ -177,7 +177,7 @@ async function runCase(c, ctx) {
 
   for (const message of c.turns) {
     const started = Date.now();
-    const res = await fetch(`${STORE}/?rest_route=/order-status-assistant/v1/chat`, {
+    const res = await fetch(`${STORE}/?rest_route=/parcelwise/v1/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-OSA-Eval-Case': caseKey },
       body: JSON.stringify({ message, conversation_id: conversationId }),
@@ -251,7 +251,7 @@ function readApiKey() {
 
 async function startStore(ctx, apiKey) {
   const cli = ['-y', PLAYGROUND_CLI, 'server', '--port=9410', '--blueprint=./dev/blueprint.json',
-    '--mount=./plugin:/wordpress/wp-content/plugins/order-status-assistant',
+    '--mount=./plugin:/wordpress/wp-content/plugins/parcelwise',
     '--mount=./dev/osa-dev:/wordpress/wp-content/plugins/osa-dev'];
   // A single command string: npx is a .cmd shim on Windows, which needs a shell to start.
   const child = spawn(`npx ${cli.join(' ')}`, { cwd: APP_DIR, shell: true, detached: !WIN, stdio: 'ignore' });

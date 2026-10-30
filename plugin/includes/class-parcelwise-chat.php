@@ -2,7 +2,7 @@
 /**
  * Chat assistant backed by Claude, with order lookup as its only tool.
  *
- * @package OrderStatusAssistant
+ * @package Parcelwise
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * Conversations live server-side and are only ever appended to, so the browser can't rewrite
  * earlier turns, and the thinking blocks Claude returns stay valid when they are sent back.
  */
-class OSA_Chat {
+class Parcelwise_Chat {
 
 	const API_URL            = 'https://api.anthropic.com/v1/messages';
 	const API_VERSION        = '2026-10-21';
@@ -29,13 +29,13 @@ class OSA_Chat {
 	/** Models that accept the server-side refusal fallback. */
 	const MODELS_WITH_FALLBACK = array( 'claude-opus-5-5', 'claude-sonnet-5-5' );
 
-	/** @var OSA_Order_Lookup */
+	/** @var Parcelwise_Order_Lookup */
 	private $lookup;
 
-	/** @var OSA_Throttle */
+	/** @var Parcelwise_Throttle */
 	private $failed_lookups;
 
-	public function __construct( OSA_Order_Lookup $lookup, OSA_Throttle $failed_lookups ) {
+	public function __construct( Parcelwise_Order_Lookup $lookup, Parcelwise_Throttle $failed_lookups ) {
 		$this->lookup         = $lookup;
 		$this->failed_lookups = $failed_lookups;
 	}
@@ -46,19 +46,19 @@ class OSA_Chat {
 	 * @return array|WP_Error The conversation_id and the assistant's reply.
 	 */
 	public function reply( $conversation_id, $message ) {
-		$settings = OSA_Settings::get();
+		$settings = Parcelwise_Settings::get();
 		$message  = trim( (string) $message );
 
 		if ( '' === $settings['api_key'] ) {
-			return new WP_Error( 'osa_chat_unavailable', __( 'The assistant is not available right now.', 'order-status-assistant' ), array( 'status' => 503 ) );
+			return new WP_Error( 'parcelwise_chat_unavailable', __( 'The assistant is not available right now.', 'parcelwise' ), array( 'status' => 503 ) );
 		}
 		if ( '' === $message ) {
-			return new WP_Error( 'osa_empty_message', __( 'Please type a message.', 'order-status-assistant' ), array( 'status' => 400 ) );
+			return new WP_Error( 'parcelwise_empty_message', __( 'Please type a message.', 'parcelwise' ), array( 'status' => 400 ) );
 		}
 
 		$conversation = $this->load( $conversation_id );
 		if ( self::customer_turns( $conversation['messages'] ) >= self::MAX_CUSTOMER_TURNS ) {
-			return new WP_Error( 'osa_conversation_too_long', __( 'This conversation is getting long. Please refresh the page to start a new one.', 'order-status-assistant' ), array( 'status' => 429 ) );
+			return new WP_Error( 'parcelwise_conversation_too_long', __( 'This conversation is getting long. Please refresh the page to start a new one.', 'parcelwise' ), array( 'status' => 429 ) );
 		}
 
 		// Work on a copy: a turn that doesn't finish cleanly is dropped, never half-saved.
@@ -146,8 +146,8 @@ class OSA_Chat {
 
 		if ( 200 !== $code || ! isset( $body->content ) || ! is_array( $body->content ) ) {
 			// Shown on the settings page, so a store owner sees a wrong key or an empty balance right away.
-			OSA_Settings::record_error( $code, is_wp_error( $http ) ? $http->get_error_message() : ( $body->error->type ?? 'unexpected response' ) );
-			return new WP_Error( 'osa_assistant_error', __( 'The assistant could not answer right now. Please try again in a moment.', 'order-status-assistant' ), array( 'status' => 502 ) );
+			Parcelwise_Settings::record_error( $code, is_wp_error( $http ) ? $http->get_error_message() : ( $body->error->type ?? 'unexpected response' ) );
+			return new WP_Error( 'parcelwise_assistant_error', __( 'The assistant could not answer right now. Please try again in a moment.', 'parcelwise' ), array( 'status' => 502 ) );
 		}
 
 		return $body;
@@ -240,9 +240,9 @@ class OSA_Chat {
 	private static function handoff_reply( array $settings ) {
 		if ( '' !== $settings['support_contact'] ) {
 			/* translators: %s: how to reach the store, for example an email address. */
-			return sprintf( __( 'Sorry, I can\'t help with that here. Please contact %s.', 'order-status-assistant' ), $settings['support_contact'] );
+			return sprintf( __( 'Sorry, I can\'t help with that here. Please contact %s.', 'parcelwise' ), $settings['support_contact'] );
 		}
-		return __( 'Sorry, I can\'t help with that here. Please contact the store.', 'order-status-assistant' );
+		return __( 'Sorry, I can\'t help with that here. Please contact the store.', 'parcelwise' );
 	}
 
 	private static function text_of( array $content ) {
@@ -267,7 +267,7 @@ class OSA_Chat {
 
 	private function load( $conversation_id ) {
 		if ( preg_match( '/^[0-9a-f-]{36}$/', (string) $conversation_id ) ) {
-			$messages = get_transient( 'osa_conv_' . $conversation_id );
+			$messages = get_transient( 'parcelwise_conv_' . $conversation_id );
 			if ( is_array( $messages ) ) {
 				return array(
 					'id'       => $conversation_id,
@@ -282,6 +282,6 @@ class OSA_Chat {
 	}
 
 	private function save( $conversation_id, array $messages ) {
-		set_transient( 'osa_conv_' . $conversation_id, $messages, self::CONVERSATION_TTL );
+		set_transient( 'parcelwise_conv_' . $conversation_id, $messages, self::CONVERSATION_TTL );
 	}
 }

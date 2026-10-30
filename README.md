@@ -1,6 +1,6 @@
-# Order Status Assistant for WooCommerce
+# Parcelwise: verified order status chat for WooCommerce
 
-A WordPress plugin that answers "Where is my order?" in a store's chat box, using Claude, and is built so that no customer can ever be shown another customer's order.
+A WordPress plugin that answers "Where is my order?" in a store's chat box, using Claude, and is built so that no customer can ever be shown another customer's order. The repository keeps its original name, `order-status-assistant`; the plugin ships as **Parcelwise** (slug `parcelwise`).
 
 ## Why
 
@@ -15,7 +15,7 @@ Customer: "order 19, kargo@example.com"
    │
    ▼
 Chat box in the browser             text only, never holds the API key
-   │  POST /wp-json/order-status-assistant/v1/chat
+   │  POST /wp-json/parcelwise/v1/chat
    ▼
 Plugin on the WordPress server
    ├─ per-visitor message and failed-lookup limits
@@ -81,7 +81,7 @@ The official [Plugin Check](https://wordpress.org/plugins/plugin-check/) static 
 
 | Path | What |
 |---|---|
-| [`plugin/`](plugin/) | The plugin as distributed. The lookup is in [`class-osa-order-lookup.php`](plugin/includes/class-osa-order-lookup.php), the chat loop in [`class-osa-chat.php`](plugin/includes/class-osa-chat.php). |
+| [`plugin/`](plugin/) | The plugin as distributed. The lookup is in [`class-parcelwise-order-lookup.php`](plugin/includes/class-parcelwise-order-lookup.php), the chat loop in [`class-parcelwise-chat.php`](plugin/includes/class-parcelwise-chat.php). |
 | [`dev/`](dev/) | Playground blueprints, the test-only fixtures plugin with the fake Claude, and the test runner. |
 | [`eval/`](eval/) | Eval cases, grader and runner. Results live in [`.claude/hillclimb/`](.claude/hillclimb/). |
 
@@ -106,4 +106,4 @@ The first run asks you to add `--approve-harness` once, so that a changed runner
 
 GPL-2.0-or-later, like WordPress. See [LICENSE](LICENSE).
 
-Built by [@FurkanKY](https://github.com/FurkanKY) with Claude Code as a pair programmer.
+Built by [@FurkanKY](https://github.com/FurkanKY).

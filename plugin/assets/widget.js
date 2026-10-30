@@ -1,16 +1,16 @@
 (function () {
-  const config = window.osaWidget;
+  const config = window.parcelwiseWidget;
   if (!config) return;
 
-  document.querySelectorAll('[data-osa-chat]').forEach(mount);
+  document.querySelectorAll('[data-parcelwise-chat]').forEach(mount);
 
   function mount(root) {
     let conversationId = '';
 
-    const log = el('div', 'osa-chat__log');
-    const form = el('form', 'osa-chat__form');
-    const input = el('input', 'osa-chat__input');
-    const button = el('button', 'osa-chat__send');
+    const log = el('div', 'parcelwise-chat__log');
+    const form = el('form', 'parcelwise-chat__form');
+    const input = el('input', 'parcelwise-chat__input');
+    const button = el('button', 'parcelwise-chat__send');
 
     log.setAttribute('aria-live', 'polite');
     input.type = 'text';
@@ -51,7 +51,7 @@
 
     // textContent, never innerHTML: replies come from a model and must not be able to inject markup.
     function add(who, text) {
-      const line = el('p', `osa-chat__msg osa-chat__msg--${who}`);
+      const line = el('p', `parcelwise-chat__msg parcelwise-chat__msg--${who}`);
       line.textContent = text;
       log.append(line);
       log.scrollTop = log.scrollHeight;
@@ -60,7 +60,7 @@
     function setBusy(busy) {
       input.disabled = busy;
       button.disabled = busy;
-      root.classList.toggle('osa-chat--busy', busy);
+      root.classList.toggle('parcelwise-chat--busy', busy);
     }
   }
 

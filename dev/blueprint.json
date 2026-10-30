@@ -7,7 +7,7 @@
 			"pluginData": { "resource": "wordpress.org/plugins", "slug": "woocommerce" },
 			"options": { "activate": true }
 		},
-		{ "step": "activatePlugin", "pluginPath": "order-status-assistant/order-status-assistant.php" },
+		{ "step": "activatePlugin", "pluginPath": "parcelwise/parcelwise.php" },
 		{ "step": "activatePlugin", "pluginPath": "osa-dev/osa-dev.php" }
 	]
 }

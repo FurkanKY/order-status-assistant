@@ -2,32 +2,32 @@
 /**
  * Public REST endpoints: direct order lookup and the chat assistant.
  *
- * @package OrderStatusAssistant
+ * @package Parcelwise
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * POST /wp-json/order-status-assistant/v1/lookup
- * POST /wp-json/order-status-assistant/v1/chat
+ * POST /wp-json/parcelwise/v1/lookup
+ * POST /wp-json/parcelwise/v1/chat
  */
-class OSA_REST_Controller {
+class Parcelwise_REST_Controller {
 
-	const ROUTE_NAMESPACE = 'order-status-assistant/v1';
+	const ROUTE_NAMESPACE = 'parcelwise/v1';
 
-	/** @var OSA_Order_Lookup */
+	/** @var Parcelwise_Order_Lookup */
 	private $lookup;
 
-	/** @var OSA_Chat */
+	/** @var Parcelwise_Chat */
 	private $chat;
 
-	/** @var OSA_Throttle */
+	/** @var Parcelwise_Throttle */
 	private $failed_lookups;
 
-	/** @var OSA_Throttle */
+	/** @var Parcelwise_Throttle */
 	private $chat_messages;
 
-	public function __construct( OSA_Order_Lookup $lookup, OSA_Chat $chat, OSA_Throttle $failed_lookups, OSA_Throttle $chat_messages ) {
+	public function __construct( Parcelwise_Order_Lookup $lookup, Parcelwise_Chat $chat, Parcelwise_Throttle $failed_lookups, Parcelwise_Throttle $chat_messages ) {
 		$this->lookup         = $lookup;
 		$this->chat           = $chat;
 		$this->failed_lookups = $failed_lookups;
@@ -74,7 +74,7 @@ class OSA_REST_Controller {
 					'message'         => array(
 						'type'      => 'string',
 						'required'  => true,
-						'maxLength' => OSA_Chat::MAX_MESSAGE_LENGTH,
+						'maxLength' => Parcelwise_Chat::MAX_MESSAGE_LENGTH,
 					),
 					'conversation_id' => array(
 						'type'      => 'string',
@@ -92,16 +92,16 @@ class OSA_REST_Controller {
 
 		if ( '' === trim( $email ) && '' === trim( $postcode ) ) {
 			return new WP_Error(
-				'osa_missing_verification',
-				__( 'Please provide the email address or postcode used for the order.', 'order-status-assistant' ),
+				'parcelwise_missing_verification',
+				__( 'Please provide the email address or postcode used for the order.', 'parcelwise' ),
 				array( 'status' => 400 )
 			);
 		}
 
 		if ( ! $this->failed_lookups->allowed() ) {
 			return new WP_Error(
-				'osa_too_many_attempts',
-				__( 'Too many attempts. Please try again in a few minutes.', 'order-status-assistant' ),
+				'parcelwise_too_many_attempts',
+				__( 'Too many attempts. Please try again in a few minutes.', 'parcelwise' ),
 				array( 'status' => 429 )
 			);
 		}
@@ -112,8 +112,8 @@ class OSA_REST_Controller {
 			$this->failed_lookups->hit();
 			// Same answer whether or not the order exists, so the endpoint can't be used to probe order numbers.
 			return new WP_Error(
-				'osa_not_found',
-				__( 'We could not find an order matching these details.', 'order-status-assistant' ),
+				'parcelwise_not_found',
+				__( 'We could not find an order matching these details.', 'parcelwise' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -124,8 +124,8 @@ class OSA_REST_Controller {
 	public function chat( WP_REST_Request $request ) {
 		if ( ! $this->chat_messages->allowed() ) {
 			return new WP_Error(
-				'osa_too_many_messages',
-				__( 'You have sent a lot of messages. Please try again later.', 'order-status-assistant' ),
+				'parcelwise_too_many_messages',
+				__( 'You have sent a lot of messages. Please try again later.', 'parcelwise' ),
 				array( 'status' => 429 )
 			);
 		}

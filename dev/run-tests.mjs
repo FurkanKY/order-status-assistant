@@ -43,7 +43,7 @@ printTable();
 function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId }) {
   const configure = (base, overrides = {}) => post(base, '/osa-dev/v1/config', { ...CHAT_CONFIG, ...overrides });
   const chat = (base, message, conversationId = '') =>
-    post(base, '/order-status-assistant/v1/chat', { message, conversation_id: conversationId });
+    post(base, '/parcelwise/v1/chat', { message, conversation_id: conversationId });
   const claudeCalls = async (base) => (await post(base, '/osa-dev/v1/claude-log')).json;
   const chatTest = (run) => async (base) => {
     await configure(base);
@@ -153,7 +153,7 @@ function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId })
     }],
     ['Sohbet: API anahtarı sayfada görünmez', chatTest(async (base) => {
       const html = await (await fetch(`${base}/?page_id=${chatPageId}`)).text();
-      if (!html.includes('data-osa-chat')) return 'sohbet kutusu sayfada yok';
+      if (!html.includes('data-parcelwise-chat')) return 'sohbet kutusu sayfada yok';
       return html.includes(CHAT_CONFIG.api_key) ? 'API anahtarı sayfada!' : null;
     })],
     ['Sohbet: mesaj sınırı (maliyet)', async (base) => {
@@ -193,7 +193,7 @@ function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId })
 }
 
 function lookup(base, body) {
-  return post(base, '/order-status-assistant/v1/lookup', body);
+  return post(base, '/parcelwise/v1/lookup', body);
 }
 
 async function post(base, route, body = {}) {
@@ -210,7 +210,7 @@ function startPlayground(port) {
     '-y', PLAYGROUND_CLI, 'server',
     `--port=${port}`,
     '--blueprint=./dev/blueprint.json',
-    '--mount=./plugin:/wordpress/wp-content/plugins/order-status-assistant',
+    '--mount=./plugin:/wordpress/wp-content/plugins/parcelwise',
     '--mount=./dev/osa-dev:/wordpress/wp-content/plugins/osa-dev',
   ];
   // A single command string: npx is a .cmd shim on Windows, which needs a shell to start.
