@@ -18,6 +18,7 @@ define( 'PARCELWISE_PLUGIN_FILE', __FILE__ );
 define( 'PARCELWISE_VERSION', '0.3.0' );
 
 require_once __DIR__ . '/includes/class-parcelwise-throttle.php';
+require_once __DIR__ . '/includes/class-parcelwise-carriers.php';
 require_once __DIR__ . '/includes/class-parcelwise-tracking.php';
 require_once __DIR__ . '/includes/class-parcelwise-order-lookup.php';
 require_once __DIR__ . '/includes/class-parcelwise-gateway.php';

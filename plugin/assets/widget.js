@@ -41,6 +41,7 @@
         const data = await res.json();
         if (data.conversation_id) conversationId = data.conversation_id;
         add('assistant', res.ok ? data.reply : data.message || config.strings.error);
+        if (res.ok) addLinks(data.links || []);
       } catch {
         add('assistant', config.strings.error);
       } finally {
@@ -54,6 +55,24 @@
       const line = el('p', `parcelwise-chat__msg parcelwise-chat__msg--${who}`);
       line.textContent = text;
       log.append(line);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // Tracking buttons are built from the server's verified order data, not from the reply text.
+    function addLinks(links) {
+      const safe = links.filter((link) => /^https:\/\//.test(link.url));
+      if (!safe.length) return;
+      const row = el('div', 'parcelwise-chat__links');
+      for (const link of safe) {
+        const a = el('a', 'parcelwise-chat__link');
+        a.href = link.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = (link.url_type === 'carrier_site' ? config.strings.openCarrier : config.strings.track)
+          .replace('%s', link.label);
+        row.append(a);
+      }
+      log.append(row);
       log.scrollTop = log.scrollHeight;
     }
 

@@ -64,6 +64,11 @@ function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId })
     const got = r.tracking.map((t) => t.number);
     return JSON.stringify(got) === JSON.stringify(expected) ? null : `takip ${JSON.stringify(got)}`;
   };
+  const link = (provider, url, urlType) => (r) => {
+    const t = r.tracking[0] ?? {};
+    return t.provider === provider && t.url === url && t.url_type === urlType
+      ? null : `takip ${JSON.stringify(t)}`;
+  };
 
   return [
     ['Düz sipariş + e-posta', expectOrder({ order_number: o.plain.number, email: 'Ayse.Yilmaz@Example.com' }, o.plain)],
@@ -80,6 +85,16 @@ function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId })
       r.refunded_total === 50 ? null : `iade ${r.refunded_total}`)],
     ['Takip no sipariş notunda', expectOrder({ order_number: o.noteTracking.number, email: 'kargo@example.com' }, o.noteTracking,
       tracking(['7312345678901']))],
+    ['Kargo firması ayrı nottan bulunur', expectOrder({ order_number: o.noteTracking.number, email: 'kargo@example.com' }, o.noteTracking,
+      link('Yurtiçi Kargo', 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=7312345678901', 'tracking'))],
+    ['Kargo Takip Türkiye kaydı (Aras)', expectOrder({ order_number: o.kargoTakip.number, email: 'aras@example.com' }, o.kargoTakip,
+      link('Aras Kargo', 'https://ebranch.araskargo.com.tr/track/4400112233', 'tracking'))],
+    ['Hezarfen kaydı, ölü link yenilenir', expectOrder({ order_number: o.hezarfen.number, email: 'hezarfen@example.com' }, o.hezarfen,
+      link('Yurtiçi Kargo', 'https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=5550001112223', 'tracking'))],
+    ['PTT: takip linki yok, siteye yönlendirir', expectOrder({ order_number: o.pttNote.number, email: 'ptt@example.com' }, o.pttNote,
+      link('PTT Kargo', 'https://www.ptt.gov.tr/', 'carrier_site'))],
+    ['"arasında" Aras sanılmaz', expectOrder({ order_number: o.plain2.number, email: 'ayse.yilmaz@example.com' }, o.plain2,
+      link('', '', ''))],
     ['Takip no kargo eklentisinde', expectOrder({ order_number: o.metaTracking.number, email: 'takip@example.com' }, o.metaTracking,
       tracking(['1Z999AA10123456784']))],
     ['Yanlış e-posta bilgi vermez', expectStatus({ order_number: o.plain.number, email: 'baskasi@example.com' }, 404)],
@@ -115,7 +130,10 @@ function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId })
     })],
     ['Sohbet: kargo takip numarasını söyler', chatTest(async (base) => {
       const res = await chat(base, `sipariş: ${o.noteTracking.number} e-posta: kargo@example.com`);
-      return res.json?.reply?.includes('7312345678901') ? null : `cevap: ${res.json?.reply ?? res.status}`;
+      if (!res.json?.reply?.includes('7312345678901')) return `cevap: ${res.json?.reply ?? res.status}`;
+      const links = res.json.links ?? [];
+      return links.length === 1 && links[0].label === 'Yurtiçi Kargo' && links[0].url.endsWith('code=7312345678901')
+        ? null : `linkler: ${JSON.stringify(links)}`;
     })],
     ['Sohbet: model reddederse güvenli cevap', chatTest(async (base) => {
       const refused = await chat(base, 'REFUSE_TEST');

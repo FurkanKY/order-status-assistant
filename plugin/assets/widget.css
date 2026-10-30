@@ -40,6 +40,27 @@
   color: #fff;
 }
 
+.parcelwise-chat__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-self: flex-start;
+}
+
+.parcelwise-chat__link {
+  padding: 6px 12px;
+  border: 1px solid var(--parcelwise-accent);
+  border-radius: 999px;
+  color: var(--parcelwise-accent);
+  text-decoration: none;
+}
+
+.parcelwise-chat__link:hover,
+.parcelwise-chat__link:focus {
+  background: var(--parcelwise-accent);
+  color: #fff;
+}
+
 .parcelwise-chat--busy .parcelwise-chat__log::after {
   content: "…";
   align-self: flex-start;

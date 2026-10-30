@@ -523,6 +523,40 @@ function osa_dev_seed() {
 		'completed'
 	);
 	$plain_second->add_order_note( 'Takip numarası: AR123456789TR' );
+	// "arasında" contains "aras" but names no carrier.
+	$plain_second->add_order_note( 'Paket diğer siparişler arasında hazırlanıyor.' );
+
+	// Turkish cargo plugins, each storing the carrier its own way.
+	$kargo_takip = $make(
+		array(
+			'email'    => 'aras@example.com',
+			'postcode' => '06000',
+		),
+		'completed'
+	);
+	$kargo_takip->update_meta_data( 'tracking_company', 'aras' );
+	$kargo_takip->update_meta_data( 'tracking_code', '4400112233' );
+	$kargo_takip->save();
+
+	$hezarfen = $make(
+		array(
+			'email'    => 'hezarfen@example.com',
+			'postcode' => '06000',
+		),
+		'completed'
+	);
+	// Hezarfen still saves Aras-era style links that no longer work; Parcelwise rebuilds them.
+	$hezarfen->add_meta_data( '_hezarfen_mst_shipment_data', '1||' . $hezarfen->get_id() . '||yurtici||Yurtiçi Kargo||5550001112223||http://example.com/dead-link||0', false );
+	$hezarfen->save();
+
+	$ptt_note = $make(
+		array(
+			'email'    => 'ptt@example.com',
+			'postcode' => '06000',
+		),
+		'completed'
+	);
+	$ptt_note->add_order_note( 'PTT Kargo takip no: RR123456789TR' );
 
 	$chat_page_id = wp_insert_post(
 		array(
@@ -549,6 +583,9 @@ function osa_dev_seed() {
 				'noteTracking' => $note_tracking,
 				'metaTracking' => $meta_tracking,
 				'plain2'       => $plain_second,
+				'kargoTakip'   => $kargo_takip,
+				'hezarfen'     => $hezarfen,
+				'pttNote'      => $ptt_note,
 			)
 		),
 	);

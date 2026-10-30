@@ -29,6 +29,10 @@ class Parcelwise_Widget {
 					'placeholder' => __( 'Type your message', 'parcelwise' ),
 					'send'        => __( 'Send', 'parcelwise' ),
 					'error'       => __( 'Something went wrong. Please try again.', 'parcelwise' ),
+					/* translators: %s: carrier name, such as Aras Kargo. */
+					'track'       => __( 'Track with %s', 'parcelwise' ),
+					/* translators: %s: carrier name, such as PTT Kargo. */
+					'openCarrier' => __( 'Open %s', 'parcelwise' ),
 				),
 			)
 		);
