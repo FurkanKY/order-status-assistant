@@ -33,6 +33,14 @@ add_filter(
 	}
 );
 
+add_filter(
+	'locale',
+	function ( $locale ) {
+		$forced = get_option( 'osa_dev_locale' );
+		return $forced ? $forced : $locale;
+	}
+);
+
 // Answers Claude API calls with a scripted fake, so chat tests run offline, for free and the same way every time.
 // The eval switches this off with the osa_dev_real_claude option and real calls go through.
 add_filter(
@@ -172,6 +180,16 @@ add_action(
 				delete_option( 'osa_dev_claude_log' );
 				delete_option( 'parcelwise_last_error' );
 				return array( 'ok' => true );
+			}
+		);
+
+		// Site language, e.g. tr_TR; empty for English. Set through the locale filter because WordPress
+		// refuses a WPLANG value whose core language pack isn't installed, and Playground has none.
+		$route(
+			'/locale',
+			function ( WP_REST_Request $request ) {
+				update_option( 'osa_dev_locale', (string) $request['locale'] );
+				return array( 'locale' => (string) $request['locale'] );
 			}
 		);
 
@@ -581,6 +599,14 @@ function osa_dev_seed() {
 		'storage'      => \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled() ? 'hpos' : 'legacy',
 		'refund_id'    => is_wp_error( $partial_refund ) ? 0 : $partial_refund->get_id(),
 		'chat_page_id' => $chat_page_id,
+		'tracking_page_id' => wp_insert_post(
+			array(
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_title'   => 'Sipariş Takibi',
+				'post_content' => '[parcelwise_tracking]',
+			)
+		),
 		'orders'       => array_map(
 			'osa_dev_fixture',
 			array(

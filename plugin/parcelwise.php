@@ -7,6 +7,7 @@
  * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
  * Text Domain:       parcelwise
+ * Domain Path:       /languages
  * License:           GPL-2.0-or-later
  *
  * @package Parcelwise
@@ -27,6 +28,7 @@ require_once __DIR__ . '/includes/class-parcelwise-connector-gateway.php';
 require_once __DIR__ . '/includes/class-parcelwise-chat.php';
 require_once __DIR__ . '/includes/class-parcelwise-settings.php';
 require_once __DIR__ . '/includes/class-parcelwise-widget.php';
+require_once __DIR__ . '/includes/class-parcelwise-tracking-page.php';
 require_once __DIR__ . '/includes/class-parcelwise-rest-controller.php';
 
 // Declare HPOS support so WooCommerce doesn't flag the plugin as incompatible.
@@ -39,8 +41,18 @@ add_action(
 	}
 );
 
+// Turkish ships with the plugin so Turkish stores get it from day one; a language pack from
+// translate.wordpress.org, once there is one, takes precedence.
+add_action(
+	'init',
+	function () {
+		load_plugin_textdomain( 'parcelwise', false, dirname( plugin_basename( PARCELWISE_PLUGIN_FILE ) ) . '/languages' );
+	}
+);
+
 Parcelwise_Settings::register();
 Parcelwise_Widget::register();
+Parcelwise_Tracking_Page::register();
 
 add_action(
 	'rest_api_init',

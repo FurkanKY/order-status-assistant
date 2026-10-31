@@ -67,6 +67,7 @@ class Parcelwise_Order_Lookup {
 			'order_number'   => (string) $order->get_order_number(),
 			'status'         => $order->get_status(),
 			'status_label'   => wc_get_order_status_name( $order->get_status() ),
+			'stage'          => self::stage( $order->get_status() ),
 			'date_created'   => $created ? $created->date( 'c' ) : null,
 			'total'          => (float) $order->get_total(),
 			'refunded_total' => (float) $order->get_total_refunded(),
@@ -164,6 +165,27 @@ class Parcelwise_Order_Lookup {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Where the order is from the customer's side, which is coarser than WooCommerce's statuses.
+	 * "Delivered" is deliberately missing: WooCommerce can't know it, so nothing here claims it.
+	 *
+	 * @return string waiting, preparing, shipped, closed, or '' for a status this doesn't know.
+	 */
+	public static function stage( $status ) {
+		$stages = array(
+			'pending'          => 'waiting',
+			'on-hold'          => 'waiting',
+			'processing'       => 'preparing',
+			'completed'        => 'shipped',
+			'kargo-verildi'    => 'shipped', // Kargo Takip Türkiye.
+			'hezarfen-shipped' => 'shipped', // Hezarfen.
+			'cancelled'        => 'closed',
+			'refunded'         => 'closed',
+			'failed'           => 'closed',
+		);
+		return $stages[ $status ] ?? '';
 	}
 
 	public static function normalize_number( $value ) {

@@ -42,7 +42,7 @@ for (const mode of MODES) {
 
 printTable();
 
-function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId }) {
+function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId, tracking_page_id: trackingPageId }) {
   const configure = (base, overrides = {}) => post(base, '/osa-dev/v1/config', { ...CHAT_CONFIG, ...overrides });
   const chat = (base, message, conversationId = '') =>
     post(base, '/parcelwise/v1/chat', { message, conversation_id: conversationId });
@@ -99,6 +99,33 @@ function scenarios({ orders: o, refund_id: refundId, chat_page_id: chatPageId })
       link('', '', ''))],
     ['Sürat: not içinde "Sürat ile"', expectOrder({ order_number: o.suratNote.number, email: 'surat@example.com' }, o.suratNote,
       link('Sürat Kargo', 'https://www.suratkargo.com.tr/KargoTakip/?kargotakipno=9001234567', 'tracking'))],
+    ['Aşama: hazırlanıyor / kargoda / kapandı', async (base) => {
+      const cases = [[o.plain, 'ayse.yilmaz@example.com', 'preparing'], [o.noteTracking, 'kargo@example.com', 'shipped'],
+        [o.refunded, 'iade@example.com', 'closed']];
+      for (const [order, email, stage] of cases) {
+        const res = await lookup(base, { order_number: order.number, email });
+        if (res.json?.stage !== stage) return `${order.number}: ${res.json?.stage}, beklenen ${stage}`;
+      }
+      return null;
+    }],
+    ['Takip sayfası AI bağlantısı olmadan açılır', async (base) => {
+      await configure(base, { api_key: '' });
+      const html = await (await fetch(`${base}/?page_id=${trackingPageId}`)).text();
+      if (!html.includes('data-parcelwise-tracking')) return 'takip formu sayfada yok';
+      if (!html.includes('assets/tracking.js')) return 'takip betiği yüklenmedi';
+      return /parcelwise\\?\/v1\\?\/lookup/.test(html) ? null : 'sorgulama adresi sayfaya verilmedi';
+    }],
+    ['Türkçe sitede takip sayfası Türkçe', async (base) => {
+      await post(base, '/osa-dev/v1/locale', { locale: 'tr_TR' });
+      try {
+        const html = await (await fetch(`${base}/?page_id=${trackingPageId}`)).text();
+        if (!html.includes('Siparişimi bul')) return 'form Türkçe değil';
+        const res = await lookup(base, { order_number: o.plain.number, email: 'baskasi@example.com' });
+        return res.json?.message === 'Bu bilgilerle eşleşen bir sipariş bulamadık.' ? null : `hata mesajı: ${res.json?.message}`;
+      } finally {
+        await post(base, '/osa-dev/v1/locale', { locale: '' });
+      }
+    }],
     ['Takip no kargo eklentisinde', expectOrder({ order_number: o.metaTracking.number, email: 'takip@example.com' }, o.metaTracking,
       tracking(['1Z999AA10123456784']))],
     ['Yanlış e-posta bilgi vermez', expectStatus({ order_number: o.plain.number, email: 'baskasi@example.com' }, 404)],

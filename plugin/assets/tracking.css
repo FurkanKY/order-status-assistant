@@ -1,0 +1,110 @@
+.parcelwise-tracking {
+  --parcelwise-accent: #2271b1;
+  --parcelwise-border: #dcdcde;
+  --parcelwise-muted: #646970;
+  max-width: 480px;
+  font: inherit;
+}
+
+.parcelwise-tracking__form label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.parcelwise-tracking__form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid var(--parcelwise-border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.parcelwise-tracking__form button {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--parcelwise-accent);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.parcelwise-tracking__form button:disabled {
+  opacity: 0.6;
+}
+
+.parcelwise-tracking__card {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--parcelwise-border);
+  border-radius: 8px;
+}
+
+.parcelwise-tracking__order {
+  margin: 0 0 12px;
+}
+
+.parcelwise-tracking__steps {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85em;
+  color: var(--parcelwise-muted);
+}
+
+.parcelwise-tracking__steps li {
+  flex: 1;
+  padding-top: 6px;
+  border-top: 4px solid var(--parcelwise-border);
+}
+
+.parcelwise-tracking__steps li.is-done {
+  border-top-color: var(--parcelwise-accent);
+  color: inherit;
+}
+
+.parcelwise-tracking__stage {
+  margin: 0;
+  font-weight: 600;
+}
+
+.parcelwise-tracking__text {
+  margin: 4px 0 12px;
+}
+
+.parcelwise-tracking__shipment {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+}
+
+.parcelwise-tracking__link {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--parcelwise-accent);
+  color: #fff;
+  text-decoration: none;
+}
+
+.parcelwise-tracking__label {
+  margin: 0;
+  font-weight: 600;
+}
+
+.parcelwise-tracking__items {
+  margin: 4px 0 12px;
+}
+
+.parcelwise-tracking__note {
+  color: var(--parcelwise-muted);
+}
+
+.parcelwise-tracking__error {
+  color: #b32d2e;
+}
