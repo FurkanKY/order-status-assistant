@@ -6,17 +6,19 @@
 
   function mount(root) {
     let conversationId = '';
+    let busy = false;
 
     const log = el('div', 'parcelwise-chat__log');
     const form = el('form', 'parcelwise-chat__form');
     const input = el('input', 'parcelwise-chat__input');
-    const button = el('button', 'parcelwise-chat__send');
+    const button = el('button', `parcelwise-chat__send button ${config.buttonClass}`.trim());
 
     log.setAttribute('aria-live', 'polite');
     input.type = 'text';
     input.maxLength = 1000;
     input.placeholder = config.strings.placeholder;
     input.setAttribute('aria-label', config.strings.placeholder);
+    input.autocomplete = 'off';
     button.type = 'submit';
     button.textContent = config.strings.send;
 
@@ -27,11 +29,11 @@
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const message = input.value.trim();
-      if (!message) return;
+      if (!message || busy) return;
 
       add('customer', message);
       input.value = '';
-      setBusy(true);
+      const typing = setBusy(true);
       try {
         const res = await fetch(config.endpoint, {
           method: 'POST',
@@ -40,13 +42,14 @@
         });
         const data = await res.json();
         if (data.conversation_id) conversationId = data.conversation_id;
+        typing.remove();
         add('assistant', res.ok ? data.reply : data.message || config.strings.error);
         if (res.ok) addLinks(data.links || []);
       } catch {
+        typing.remove();
         add('assistant', config.strings.error);
       } finally {
         setBusy(false);
-        input.focus();
       }
     });
 
@@ -56,6 +59,7 @@
       line.textContent = text;
       log.append(line);
       log.scrollTop = log.scrollHeight;
+      return line;
     }
 
     // Tracking buttons are built from the server's verified order data, not from the reply text.
@@ -68,7 +72,7 @@
         a.href = link.url;
         a.target = '_blank';
         a.rel = 'noopener noreferrer';
-        a.textContent = (link.url_type === 'carrier_site' ? config.strings.openCarrier : config.strings.track)
+        a.textContent = (link.url_type === 'carrier_site' ? config.strings.goToCarrier : config.strings.track)
           .replace('%s', link.label);
         row.append(a);
       }
@@ -76,10 +80,20 @@
       log.scrollTop = log.scrollHeight;
     }
 
-    function setBusy(busy) {
-      input.disabled = busy;
-      button.disabled = busy;
-      root.classList.toggle('parcelwise-chat--busy', busy);
+    // The field stays editable while the assistant answers: disabling it would close the
+    // keyboard on a phone after every message.
+    function setBusy(state) {
+      busy = state;
+      button.disabled = state;
+      root.classList.toggle('parcelwise-chat--busy', state);
+      if (!state) return null;
+
+      const typing = add('assistant', '');
+      typing.classList.add('parcelwise-chat__typing');
+      const label = el('span', 'parcelwise-chat__sr');
+      label.textContent = config.strings.typing;
+      typing.append(label, el('span', 'parcelwise-chat__dot'), el('span', 'parcelwise-chat__dot'), el('span', 'parcelwise-chat__dot'));
+      return typing;
     }
   }
 

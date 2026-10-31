@@ -23,16 +23,19 @@ class Parcelwise_Widget {
 			'parcelwise-widget',
 			'parcelwiseWidget',
 			array(
-				'endpoint' => esc_url_raw( rest_url( Parcelwise_REST_Controller::ROUTE_NAMESPACE . '/chat' ) ),
-				'strings'  => array(
+				'endpoint'    => esc_url_raw( rest_url( Parcelwise_REST_Controller::ROUTE_NAMESPACE . '/chat' ) ),
+				// WooCommerce's own button class, so the send button matches the store's theme.
+				'buttonClass' => function_exists( 'wc_wp_theme_get_element_class_name' ) ? (string) wc_wp_theme_get_element_class_name( 'button' ) : '',
+				'strings'     => array(
 					'greeting'    => __( 'Hi! Send me your order number and the email address you used, and I\'ll check on your order.', 'parcelwise' ),
 					'placeholder' => __( 'Type your message', 'parcelwise' ),
 					'send'        => __( 'Send', 'parcelwise' ),
+					'typing'      => __( 'Typing…', 'parcelwise' ),
 					'error'       => __( 'Something went wrong. Please try again.', 'parcelwise' ),
 					/* translators: %s: carrier name, such as Aras Kargo. */
 					'track'       => __( 'Track with %s', 'parcelwise' ),
 					/* translators: %s: carrier name, such as PTT Kargo. */
-					'openCarrier' => __( 'Open %s', 'parcelwise' ),
+					'goToCarrier' => __( 'Go to %s', 'parcelwise' ),
 				),
 			)
 		);
